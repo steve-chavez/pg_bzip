@@ -1,0 +1,7 @@
+*.zst
+*.csv
+*.o
+.history
+results/
+regression.diffs
+regression.out

@@ -1,0 +1,14 @@
+create extension if not exists bzip;
+NOTICE:  extension "bzip" already exists, skipping
+select pg_read_file('./all_movies.csv') = convert_from(bzcat(pg_read_binary_file('./all_movies.csv.bz2')), 'utf8') as successful_decompression;
+ successful_decompression 
+--------------------------
+ t
+(1 row)
+
+select pg_read_binary_file('./all_movies.csv.bz2') = bzip2(pg_read_binary_file('./all_movies.csv')) as successful_compression;
+ successful_compression 
+------------------------
+ t
+(1 row)
+
