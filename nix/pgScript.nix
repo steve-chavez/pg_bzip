@@ -1,4 +1,4 @@
-{ postgresql, writeShellScriptBin, options ? "" } :
+{ postgresql, tree, writeShellScriptBin, options ? "" } :
 
 let
   ver = builtins.head (builtins.splitVersion postgresql.version);
@@ -19,6 +19,9 @@ let
     default_options="-F -c listen_addresses=\"\" -k $PGDATA"
 
     pg_ctl start -o "$default_options" -o "${options}"
+
+    pwd
+    ${tree}/bin/tree
 
     cp ${../test/samples/all_movies.csv} $tmpdir/all_movies.csv
     cp ${../test/samples/all_movies.csv.bz2} $tmpdir/all_movies.csv.bz2
