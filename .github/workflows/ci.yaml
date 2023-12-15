@@ -12,10 +12,16 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - name: debug 1
+        run: |
+          pwd
+          file /home/runner/work/pg_bzip/pg_bzip/test/samples/all_movies.csv
+          file ./test/samples/all_movies.csv
+          tree
       - uses: cachix/install-nix-action@v24
         with:
           nix_path: nixpkgs=channel:nixos-unstable
-      - name: debug
+      - name: debug 2
         run: |
           pwd
           file /home/runner/work/pg_bzip/pg_bzip/test/samples/all_movies.csv
