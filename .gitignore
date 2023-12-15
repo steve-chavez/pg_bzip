@@ -1,5 +1,4 @@
 *.zst
-*.csv
 *.o
 .history
 results/
