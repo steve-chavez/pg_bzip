@@ -12,6 +12,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - name: huh
+        run: ls -la
+        working-directory: ${{ github.workspace }}/tmp
       - name: debug 1
         run: |
           pwd
