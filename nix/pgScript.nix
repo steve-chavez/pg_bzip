@@ -20,6 +20,8 @@ let
 
     pg_ctl start -o "$default_options" -o "${options}"
 
+    bzip2 -dk ../test/samples/all_movies.csv.bz2
+
     cp ${../test/samples/all_movies.csv} $tmpdir/all_movies.csv
     cp ${../test/samples/all_movies.csv.bz2} $tmpdir/all_movies.csv.bz2
 
