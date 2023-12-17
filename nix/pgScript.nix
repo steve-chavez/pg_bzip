@@ -23,6 +23,12 @@ let
     cp ${../test/samples/all_movies.csv} $tmpdir/all_movies.csv
     cp ${../test/samples/all_movies.csv.bz2} $tmpdir/all_movies.csv.bz2
 
+    dd if=$tmpdir/all_movies.csv.bz2 of=$tmpdir/damaged_all_movies.csv.bz2 bs=1 count=1K
+
+    dd if=$tmpdir/all_movies.csv.bz2 of=$tmpdir/empty_file count=0
+
+    dd if=$tmpdir/all_movies.csv.bz2 of=$tmpdir/wrong_header_all_movies.csv.bz2 bs=1 skip=2
+
     "$@"
   '';
 in

@@ -1,0 +1,14 @@
+create extension if not exists bzip;
+NOTICE:  extension "bzip" already exists, skipping
+\echo
+
+select bzcat(pg_read_binary_file('./damaged_all_movies.csv.bz2'));
+ERROR:  bzip2 decompression failed: compressed data ends unexpectedly
+\echo
+
+select bzcat(pg_read_binary_file('./empty_file'));
+ERROR:  bzip2 decompression failed: compressed data ends unexpectedly
+\echo
+
+select bzcat(pg_read_binary_file('./wrong_header_all_movies.csv.bz2'));
+ERROR:  bzip2 decompression failed: data is not in bzip2 format
