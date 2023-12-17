@@ -18,6 +18,26 @@ PG_MODULE_MAGIC;
 PG_FUNCTION_INFO_V1(bzcat);
 PG_FUNCTION_INFO_V1(bzip2);
 
+/*error handling*/
+typedef struct {
+  char buf[40];
+} bz2_error_msg;
+
+static bz2_error_msg get_bz2_error_msg(int bz2_code){
+  switch(bz2_code){
+    case BZ_SEQUENCE_ERROR:   return (bz2_error_msg){"internal error"};
+    case BZ_PARAM_ERROR:      return (bz2_error_msg){"incorrect parameter"};
+    case BZ_MEM_ERROR:        return (bz2_error_msg){"memory allocation failed"};
+    case BZ_DATA_ERROR:       return (bz2_error_msg){"integrity error"};
+    case BZ_DATA_ERROR_MAGIC: return (bz2_error_msg){"data is not in bzip2 format"};
+    case BZ_IO_ERROR:         return (bz2_error_msg){"i/o error"};
+    case BZ_UNEXPECTED_EOF:   return (bz2_error_msg){"compressed data ends unexpectedly"};
+    case BZ_OUTBUFF_FULL:     return (bz2_error_msg){"buffer size exceeded"};
+    case BZ_CONFIG_ERROR:     return (bz2_error_msg){"bad bzlib library"};
+    default:                  return (bz2_error_msg){"unknown"};
+  }
+}
+
 /*
  *custom memory allocators for bzip2
  */
@@ -60,7 +80,7 @@ Datum bzip2(PG_FUNCTION_ARGS){
       0); // according to the man pages (on --repetitive-fast --repetitive-best), the workFactor is unused, so we just leave it at 0 which will take the default.
 
   if ( status != BZ_OK ) {
-    ereport(ERROR, errmsg("bzip2 compression initialization failed"));
+    ereport(ERROR, errmsg("bzip2 compression initialization failed: %s", get_bz2_error_msg(status).buf));
   }
 
   StringInfoData si;
@@ -82,7 +102,7 @@ Datum bzip2(PG_FUNCTION_ARGS){
 
   if ( status != BZ_STREAM_END) {
     BZ2_bzCompressEnd(&stream);
-    ereport(ERROR, errmsg("bzip2 compression failed"));
+    ereport(ERROR, errmsg("bzip2 compression failed: %s", get_bz2_error_msg(status).buf));
   }
 
   BZ2_bzCompressEnd(&stream);
@@ -114,7 +134,7 @@ Datum bzcat(PG_FUNCTION_ARGS){
   status = BZ2_bzDecompressInit(&stream, BZ2_VERBOSITY, 0);
 
   if ( status != BZ_OK ) {
-    ereport(ERROR, errmsg("bzip2 decompression initialization failed"));
+    ereport(ERROR, errmsg("bzip2 decompression initialization failed: %s", get_bz2_error_msg(status).buf));
   }
 
   StringInfoData si;
@@ -127,11 +147,17 @@ Datum bzcat(PG_FUNCTION_ARGS){
 
     stream.avail_out = BZ_MAX_UNUSED;
     stream.next_out = buffer;
+
+    if (status == BZ_OK && stream.avail_in == 0 && stream.avail_out > 0){
+      status = BZ_UNEXPECTED_EOF;
+      break;
+    };
+
   } while (status == BZ_OK);
 
   if ( status != BZ_STREAM_END ){
     BZ2_bzDecompressEnd(&stream);
-    ereport(ERROR, errmsg("bzip2 decompression failed"));
+    ereport(ERROR, errmsg("bzip2 decompression failed: %s", get_bz2_error_msg(status).buf));
   }
 
   BZ2_bzDecompressEnd(&stream);
