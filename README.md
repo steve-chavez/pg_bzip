@@ -40,7 +40,7 @@ If you get data compressed as bzip2, whether through [HTTP](https://github.com/p
   For this example we'll use `fio_writefile` from [pgsql-fio](https://github.com/csimsek/pgsql-fio), which offers a convenient way to write a file from SQL.
 
   ```sql
-  select fio_writefile('/home/stevechavez/Projects/pg_bzip/my_text.bz2', bzip2(repeat('my secret text to be compressed', 1000)::bytea)) as writesize;
+  select fio_writefile('/path/to/my_text.bz2', bzip2(repeat('my text to be compressed', 1000)::bytea)) as writesize;
 
    writesize
   -----------
