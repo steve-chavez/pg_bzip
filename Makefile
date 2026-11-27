@@ -21,7 +21,7 @@ REGRESS_OPTS = --inputdir=test
 PG_CONFIG = pg_config
 SHLIB_LINK = -lbz2
 
-PG_CFLAGS = -std=c99 -Wno-declaration-after-statement -Wall -Werror -Wshadow
+PG_CFLAGS = -Wno-declaration-after-statement -Wall -Werror -Wshadow
 
 PGXS := $(shell $(PG_CONFIG) --pgxs)
 include $(PGXS)
